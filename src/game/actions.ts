@@ -23,6 +23,23 @@ export function doAction(id: ActionId) {
 export function addBuilding(id: string) {
     const state = stateSignal.value;
 
+    // Check we have enough resources to build
+    const building = BUILDINGS[id];
+    for (const [resId, amount] of Object.entries(building.cost)) {
+        if (!amount || !state.resources[resId]) continue;
+
+        if (state.resources[resId].amount < amount) {
+            return; // Not enough resources
+        }
+    }
+
+    // Deduct resources
+    for (const [resId, amount] of Object.entries(building.cost)) {
+        if (!amount || !state.resources[resId]) continue;
+
+        state.resources[resId].amount -= amount;
+    }
+
     // Add the building
     state.buildings[id] = (state.buildings[id] ?? 0) + 1;
 
