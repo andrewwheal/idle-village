@@ -15,16 +15,6 @@ export const stateSignal = signal<GameState>(initial);
 
 console.log("Initial game state:", stateSignal.value);
 
-export function addBuilding(id: string) {
-  const state = stateSignal.value;
-  state.buildings[id] = (state.buildings[id] ?? 0) + 1;
-
-  stateSignal.value = {
-    ...state,
-    buildings: { ...state.buildings },
-  };
-}
-
 function tick(dt: number) {
   const state = stateSignal.value;
   stepSimulation(dt, state, BUILDINGS);
