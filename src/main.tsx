@@ -16,20 +16,29 @@ export const stateSignal = signal<GameState>(loadedState || initial);
 
 console.log("Initial game state:", stateSignal.value);
 
-function tick(dt: number) {
-  const state = stateSignal.value;
-  stepSimulation(dt, state, BUILDINGS);
-  saveGameState(state);
+let lastTime = 0;
+const frameDuration = 250; // 1000ms / 4 fps
 
-  // Force rerender by updating the signal
-  stateSignal.value = { ...state! };
+function gameLoop(currentTime: number) {
+  if (currentTime - lastTime < frameDuration) {
+    console.debug("Skipping frame. Time since last frame (ms):", currentTime - lastTime);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+  lastTime = currentTime;
+
+  if (deltaTime > 0) { // TODO Handle large delta times (e.g., when tab is inactive)
+    stepSimulation(deltaTime, stateSignal.value, BUILDINGS);
+    saveGameState(stateSignal.value);
+    // Force rerender by updating the signal
+    stateSignal.value = { ...stateSignal.value };
+  }
+
+  requestAnimationFrame(gameLoop);
 }
-
-// "Hack" to stop multiple intervals/states when module is reloaded in dev mode
-declare global {var __idleVillageIntervalId: number | undefined;}
-if (globalThis.__idleVillageIntervalId != null) clearInterval(globalThis.__idleVillageIntervalId);
-
-globalThis.__idleVillageIntervalId = window.setInterval(() => tick(1), 1000);
+requestAnimationFrame(gameLoop);
 
 // Expose state for debugging
 (window as any).gameState = stateSignal;
