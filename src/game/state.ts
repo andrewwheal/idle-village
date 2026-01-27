@@ -44,3 +44,24 @@ export function createInitialGameState(resources: Record<ResourceId, Resource>):
     buildings: buildingStates,
   } as GameState;
 }
+
+export function saveGameState(state: GameState): string {
+  const stateStr = btoa(JSON.stringify(state));
+  localStorage.setItem("idle-village-state", stateStr);
+  return stateStr;
+}
+
+export function loadGameState(): GameState | null {
+  try {
+    const savedState = localStorage.getItem("idle-village-state");
+    if (!savedState) {
+      return null;
+    }
+    const decoded = atob(savedState);
+    const parsed: GameState = JSON.parse(decoded);
+    return parsed;
+  } catch (e) {
+    console.error("Failed to load game state:", e);
+    return null;
+  }
+}

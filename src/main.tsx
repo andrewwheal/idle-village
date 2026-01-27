@@ -2,22 +2,24 @@ import { signal } from "@preact/signals";
 import { render } from 'preact'
 import App from "./ui/app.tsx";
 
-import { createInitialGameState, type GameState } from "./game/state";
+import { createInitialGameState, loadGameState, saveGameState, type GameState } from "./game/state";
 import { stepSimulation } from "./game/sim";
 import { RESOURCES } from "./content/resources.ts";
 import { BUILDINGS } from "./content/buildings.ts";
 
 console.log("Starting game...");
 
+const loadedState = loadGameState();
 const initial = createInitialGameState(RESOURCES);
 
-export const stateSignal = signal<GameState>(initial);
+export const stateSignal = signal<GameState>(loadedState || initial);
 
 console.log("Initial game state:", stateSignal.value);
 
 function tick(dt: number) {
   const state = stateSignal.value;
   stepSimulation(dt, state, BUILDINGS);
+  saveGameState(state);
 
   // Force rerender by updating the signal
   stateSignal.value = { ...state! };
