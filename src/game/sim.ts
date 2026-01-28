@@ -7,8 +7,11 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 // TODO Should this be manipulating the gameState in place, or returning a new one?
-export function stepSimulation(deltaTime: number, gameState: GameState, buildings: Record<BuildingId, Building>): void {
+export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>, buildings: Record<BuildingId, Building>): GameState {
   // if (deltaTime <= 0) return gameState;
+
+  // TODO resource states need to also be deep copied if we want to avoid mutating the input state
+  const resources = { ...gameState.resources };
 
   // TODO How could we handle a building processed early not having enough resources to consume which are later produced by another building?
   for (const [buildingId, count] of Object.entries(gameState.buildings)) buildingLoop:{
@@ -59,15 +62,14 @@ export function stepSimulation(deltaTime: number, gameState: GameState, building
     console.log("Applying resource changes:", resourceChanges);
     for (const [resourceId, change] of Object.entries(resourceChanges)) {
       if (!change || change === 0) continue;
-      let resourceState = gameState.resources[resourceId as ResourceId];
-      if (!resourceState) {
-        // TODO capacity should come from resource definition
-        resourceState = { amount: 0, capacity: 10 };
-        gameState.resources[resourceId as ResourceId] = resourceState;
-      }
+      
+      // TODO capacity should come from resource definition
+      let resourceState = resources[resourceId as ResourceId] || { amount: 0, capacity: 10 };
+      console.log("Resource", resourceId, "before change:", resourceState.amount, "change:", change, "capacity:", resourceState.capacity);
       resourceState.amount = clamp(resourceState.amount + change, 0, resourceState.capacity);
+      resources[resourceId as ResourceId] = { ...resourceState };
     }
   }
 
-  gameState.gameTime += deltaTime;
+  return { ...gameState, gameTime: gameState.gameTime + deltaTime, resources };
 }

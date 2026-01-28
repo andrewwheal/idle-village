@@ -30,10 +30,9 @@ function gameLoop(currentTime: number) {
   lastTime = currentTime;
 
   if (deltaTime > 0) { // TODO Handle large delta times (e.g., when tab is inactive)
-    stepSimulation(deltaTime, stateSignal.value, BUILDINGS);
-    saveGameState(stateSignal.value);
-    // Force rerender by updating the signal
-    stateSignal.value = { ...stateSignal.value };
+    const newState = stepSimulation(deltaTime, stateSignal.value, BUILDINGS);
+    stateSignal.value = newState;
+    saveGameState(newState);
   }
 
   requestAnimationFrame(gameLoop);
