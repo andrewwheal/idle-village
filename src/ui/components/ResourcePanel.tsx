@@ -9,7 +9,7 @@ export default function ResourcePanel() {
 
       {Object.entries(stateSignal.value.resources).map(([id, res]) => (
         <div key={id}>
-          {res ? `${id}: ${res.amount} / ${res.capacity}` : `${id}: 0 / 0`}
+          {res ? `${id}: ${Math.round(res.amount)} / ${res.capacity}` : `${id}: 0 / 0`}
         </div>
       ))}
 
