@@ -7,6 +7,7 @@ export function doAction(id: ActionId) {
     const action = ACTIONS[id];
 
     // Add the resource gain
+    // TODO handle capacity limits
     for (const [resId, amount] of Object.entries(action.produces)) {
         if (!amount || !state.resources[resId]) continue;
 

@@ -30,7 +30,7 @@ function gameLoop(currentTime: number) {
   lastTime = currentTime;
 
   if (deltaTime > 0) { // TODO Handle large delta times (e.g., when tab is inactive)
-    const newState = stepSimulation(deltaTime, stateSignal.value, BUILDINGS);
+    const newState = stepSimulation(deltaTime, stateSignal.value, RESOURCES, BUILDINGS);
     stateSignal.value = newState;
     saveGameState(newState);
   }
