@@ -37,7 +37,6 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
         const resourceState = gameState.resources[resourceId as ResourceId];
         if (!resourceState || resourceState.amount < amount * count * deltaTime) {
           // TODO If we have 2 buildings, we might have enough for one but not both
-          // TODO If we don't have enough capacity to store produced resources, we might want to skip consumption too
           // Not enough resources to run this building, skip to next building
           console.log("Not enough resource", resourceId, "to run building", buildingId);
           break buildingLoop;
@@ -53,9 +52,19 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
       // Shouldn't be necessary but TS wants it
       if (!amount) continue;
 
-      console.log("Producing resource", resourceId, "amount", amount * count * deltaTime);
-      resourceChanges[resourceId as ResourceId] = (resourceChanges[resourceId as ResourceId] || 0) + amount * count * deltaTime;
-      console.log("Total change for resource", resourceId, "is now", resourceChanges[resourceId as ResourceId]);
+      const change = (resourceChanges[resourceId as ResourceId] || 0) + amount * count * deltaTime;
+
+      const resourceState = gameState.resources[resourceId as ResourceId];
+      if (!resourceState || resourceState.raw_amount + change > resourceState.capacity) {
+        // TODO If we have 2 buildings, we might have enough for one but not both
+        // Not enough capacity to store produced resources, skip to next building
+        // console.log("Not enough capacity for resource", resourceId, "to store production from building", buildingId);
+        break buildingLoop;
+      }
+
+      // console.log("Producing resource", resourceId, "amount", amount * count * deltaTime);
+      resourceChanges[resourceId as ResourceId] = change;
+      // console.log("Total change for resource", resourceId, "is now", resourceChanges[resourceId as ResourceId]);
     }
 
     // Apply resource changes
