@@ -17,11 +17,11 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   for (const [buildingId, count] of Object.entries(gameState.buildings)) buildingLoop:{
     // Skip if no buildings of this type have been built (`!count` seems superfluous, but TS wants it)
     if (!count || count <= 0) {
-      console.debug("Skipping building:", buildingId, "count:", count);
+      // console.debug("Skipping building:", buildingId, "count:", count);
       continue;
     }
     
-    console.log("Processing building:", buildingId, "count:", count);
+    // console.log("Processing building:", buildingId, "count:", count);
 
     const building = buildings[buildingId as BuildingId];
 
@@ -29,7 +29,7 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     
     // Calculate resource consumption, checking if we have enough resources to consume
     if (building.consumes) {
-      console.log("Building consumes resources:", building.consumes);
+      // console.log("Building consumes resources:", building.consumes);
       for (const [resourceId, amount] of Object.entries(building.consumes)) {
         // Shouldn't be necessary but TS wants it
         if (!amount) continue;
@@ -48,7 +48,7 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     }
 
     // Calculate resource production
-    console.log("Building produces resources:", building.produces);
+    // console.log("Building produces resources:", building.produces);
     for (const [resourceId, amount] of Object.entries(building.produces)) {
       // Shouldn't be necessary but TS wants it
       if (!amount) continue;
@@ -59,7 +59,7 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     }
 
     // Apply resource changes
-    console.log("Applying resource changes:", resourceChanges);
+    // console.log("Applying resource changes:", resourceChanges);
     for (const [resourceId, change] of Object.entries(resourceChanges)) {
       if (!change || change === 0) continue;
       

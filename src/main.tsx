@@ -21,7 +21,7 @@ const frameDuration = 250; // 1000ms / 4 fps
 
 function gameLoop(currentTime: number) {
   if (currentTime - lastTime < frameDuration) {
-    console.debug("Skipping frame. Time since last frame (ms):", currentTime - lastTime);
+    // console.debug("Skipping frame. Time since last frame (ms):", currentTime - lastTime);
     requestAnimationFrame(gameLoop);
     return;
   }
