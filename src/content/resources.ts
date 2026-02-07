@@ -17,7 +17,7 @@ export const RESOURCES: Record<string, Resource> = {
     "food": {
         id: "food",
         name: "Food",
-        baseCap: 200,
+        baseCap: 2000,
     },
     "planks": {
         id: "planks",

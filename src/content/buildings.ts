@@ -18,7 +18,7 @@ export const BUILDINGS: Record<string, Building> = {
             "wood": 10,
         },
         produces: {
-            "wood": 1,
+            "wood": 0.2,
         },
     },
     "farm": {
@@ -28,7 +28,7 @@ export const BUILDINGS: Record<string, Building> = {
             "wood": 20,
         },
         produces: {
-            "food": 1,
+            "food": 0.8,
         },
     },
     "sawmill": {
@@ -38,10 +38,10 @@ export const BUILDINGS: Record<string, Building> = {
             "wood": 30,
         },
         consumes: {
-            "wood": 2,
+            "wood": 0.1,
         },
         produces: {
-            "planks": 1,
+            "planks": 0.5,
         },
     },
 }
