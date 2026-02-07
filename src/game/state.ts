@@ -4,6 +4,7 @@ import { initialResources } from "../content/resources";
 
 export type ResourceState = {
   amount: number;
+  raw_amount: number;
   capacity: number;
 }
 
@@ -28,6 +29,7 @@ export function createInitialGameState(resources: Record<ResourceId, Resource>):
   for (const id of initialResources) {
     resourceStates[id] = {
       amount: 0,
+      raw_amount: 0,
       capacity: resources[id].baseCap,
     };
   }

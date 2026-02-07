@@ -64,9 +64,10 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
       if (!change || change === 0) continue;
       
       // TODO How best to handle fractions of resources? Rounding here would starve small productions, currenlty rounding in UI, but that feels wrong
-      let resourceState = current_resources[resourceId as ResourceId] || { amount: 0, capacity: resources[resourceId as ResourceId].baseCap };
-      console.log("Resource", resourceId, "before change:", resourceState.amount, "change:", change, "capacity:", resourceState.capacity);
-      resourceState.amount = clamp(resourceState.amount + change, 0, resourceState.capacity);
+      let resourceState = current_resources[resourceId as ResourceId] || { amount: 0, raw_amount: 0, capacity: resources[resourceId as ResourceId].baseCap };
+      // console.log("Resource", resourceId, "before change:", resourceState.amount, "change:", change, "capacity:", resourceState.capacity);
+      resourceState.raw_amount = clamp(resourceState.raw_amount + change, 0, resourceState.capacity);
+      resourceState.amount = Math.floor(resourceState.raw_amount);
       current_resources[resourceId as ResourceId] = { ...resourceState };
     }
   }

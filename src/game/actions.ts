@@ -11,7 +11,7 @@ export function doAction(id: ActionId) {
     for (const [resId, amount] of Object.entries(action.produces)) {
         if (!amount || !state.resources[resId]) continue;
 
-        state.resources[resId].amount += amount;
+        state.resources[resId].raw_amount += amount;
     }
 
     // Update the signal to trigger reactivity
