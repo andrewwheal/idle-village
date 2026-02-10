@@ -2,10 +2,6 @@ import type { ResourceId, Resource } from "../content/resources";
 import type { BuildingId, Building } from "../content/buildings";
 import type { GameState } from "./state";
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
-
 
 function canRunBuilding(building: Building, current_resources: GameState["resources"]): boolean {
   if (building.consumes) {
