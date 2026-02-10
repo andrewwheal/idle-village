@@ -11,7 +11,7 @@ export function doAction(id: ActionId) {
     for (const [resId, amount] of Object.entries(action.produces)) {
         if (!amount || !state.resources[resId]) continue;
 
-        state.resources[resId].raw_amount += amount;
+        state.resources[resId].amount += amount;
     }
 
     // Update the signal to trigger reactivity
@@ -42,11 +42,12 @@ export function addBuilding(id: string) {
     }
 
     // Add the building
-    state.buildings[id] = (state.buildings[id] ?? 0) + 1;
+    state.buildingTimers[id] = (state.buildingTimers[id] ?? []);
+    state.buildingTimers[id].push(0);
 
     // Update the signal to trigger reactivity
     stateSignal.value = {
         ...state,
-        buildings: { ...state.buildings },
+        buildingTimers: { ...state.buildingTimers },
     };
 }

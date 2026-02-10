@@ -1,10 +1,9 @@
 import type { ResourceId, Resource } from "../content/resources";
-import type { BuildingId } from "../content/buildings";
+import { BUILDINGS, type BuildingId } from "../content/buildings";
 import { initialResources } from "../content/resources";
 
 export type ResourceState = {
   amount: number;
-  raw_amount: number;
   capacity: number;
 }
 
@@ -12,7 +11,7 @@ export type GameState = {
   gameTime: number;
   version: number;
   resources: Partial<Record<ResourceId, ResourceState>>;
-  buildings: Partial<Record<BuildingId, number>>;
+  buildingTimers: Partial<Record<BuildingId, number[]>>;
 }
 
 // TODO should we have all resources/buildings in the state, or only those that have been unlocked/built?
@@ -29,21 +28,20 @@ export function createInitialGameState(resources: Record<ResourceId, Resource>):
   for (const id of initialResources) {
     resourceStates[id] = {
       amount: 0,
-      raw_amount: 0,
       capacity: resources[id].baseCap,
     };
   }
 
-  const buildingStates: Partial<Record<BuildingId, number>> = {};
+  const buildingTimers: Partial<Record<BuildingId, number[]>> = {};
   // for (const id of Object.keys(resources)) {
   //   buildingStates[id as BuildingId] = 0;
   // }
 
   return {
     gameTime: 0,
-    version: 1,
+    version: 2,
     resources: resourceStates,
-    buildings: buildingStates,
+    buildingTimers: buildingTimers,
   } as GameState;
 }
 
@@ -60,7 +58,28 @@ export function loadGameState(): GameState | null {
       return null;
     }
     const decoded = atob(savedState);
-    const parsed: GameState = JSON.parse(decoded);
+    const parsed: any = JSON.parse(decoded);
+
+    if (parsed.version == 1) {
+      // migrate from version 1 to version 2
+      console.log("Migrating game state from version 1 to version 2");
+
+      // Convert building counts to timers
+      parsed.buildingTimers = {};
+      for (const [buildingId, count] of Object.entries(parsed.buildings)) {
+        //parsed.buildingTimers[buildingId] = Array(count as number).fill(0);
+        parsed.buildingTimers[buildingId] = [];
+        for (let i = 0; i < (count as number); i++) {
+          parsed.buildingTimers[buildingId].push(
+            Math.floor(Math.random() * 1000) / 1000 * BUILDINGS[buildingId as BuildingId].cycleSeconds
+          );
+        }
+      }
+      delete parsed.buildings;
+
+      parsed.version = 2;
+    }
+
     return parsed;
   } catch (e) {
     console.error("Failed to load game state:", e);

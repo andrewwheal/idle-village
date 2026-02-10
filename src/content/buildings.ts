@@ -6,6 +6,7 @@ export type Building = {
     id: BuildingId;
     name: string;
     cost: Partial<Record<ResourceId, number>>;
+    cycleSeconds: number;
     consumes?: Partial<Record<ResourceId, number>>;
     produces: Partial<Record<ResourceId, number>>;
 }
@@ -17,8 +18,9 @@ export const BUILDINGS: Record<string, Building> = {
         cost: {
             "wood": 10,
         },
+        cycleSeconds: 10,
         produces: {
-            "wood": 0.2,
+            "wood": 2,
         },
     },
     "farm": {
@@ -27,8 +29,9 @@ export const BUILDINGS: Record<string, Building> = {
         cost: {
             "wood": 20,
         },
+        cycleSeconds: 20,
         produces: {
-            "food": 0.8,
+            "food": 5,
         },
     },
     "sawmill": {
@@ -37,11 +40,12 @@ export const BUILDINGS: Record<string, Building> = {
         cost: {
             "wood": 30,
         },
+        cycleSeconds: 5,
         consumes: {
-            "wood": 0.1,
+            "wood": 1,
         },
         produces: {
-            "planks": 0.5,
+            "planks": 4,
         },
     },
 }
