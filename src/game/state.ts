@@ -1,4 +1,4 @@
-import type { ResourceId, Resource } from "../content/resources";
+import { RESOURCES, type ResourceId, type Resource } from "../content/resources";
 import { BUILDINGS, type BuildingId } from "../content/buildings";
 import { initialResources } from "../content/resources";
 
@@ -78,6 +78,13 @@ export function loadGameState(): GameState | null {
       delete parsed.buildings;
 
       parsed.version = 2;
+    }
+    if (parsed.version == 2) {
+      for (const [resourceId, resourceState] of Object.entries(parsed.resources)) {
+        if (!resourceState) continue;
+        (resourceState as any).capacity = RESOURCES[resourceId as ResourceId].baseCap;
+      }
+      parsed.version = 2.1;
     }
 
     return parsed;
