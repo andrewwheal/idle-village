@@ -42,7 +42,7 @@ function applyBuildingEffects(building: Building, current_resources: GameState["
 
   for (const [resourceId, amount] of Object.entries(building.produces)) {
     if (!amount) continue;
-    const resourceState = updated_resources[resourceId as ResourceId] || { amount: 0, raw_amount: 0, capacity: resourceDefs[resourceId as ResourceId].baseCap };
+    const resourceState = updated_resources[resourceId as ResourceId] || { amount: 0, raw_amount: 0, capacity: resourceDefs[resourceId as ResourceId].baseCapacity };
     updated_resources[resourceId as ResourceId] = {
       ...resourceState,
       amount: resourceState.amount + amount

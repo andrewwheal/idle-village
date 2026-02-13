@@ -28,7 +28,7 @@ export function createInitialGameState(resources: Record<ResourceId, Resource>):
   for (const id of initialResources) {
     resourceStates[id] = {
       amount: 0,
-      capacity: resources[id].baseCap,
+      capacity: resources[id].baseCapacity,
     };
   }
 
@@ -82,7 +82,7 @@ export function loadGameState(): GameState | null {
     if (parsed.version == 2) {
       for (const [resourceId, resourceState] of Object.entries(parsed.resources)) {
         if (!resourceState) continue;
-        (resourceState as any).capacity = RESOURCES[resourceId as ResourceId].baseCap;
+        (resourceState as any).capacity = RESOURCES[resourceId as ResourceId].baseCapacity;
       }
       parsed.version = 2.1;
     }
