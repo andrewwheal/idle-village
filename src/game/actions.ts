@@ -1,7 +1,7 @@
 import { stateSignal } from "../main.tsx";
 import { BUILDINGS } from "../content/buildings.ts";
 import { ACTIONS, type ActionId } from "../content/actions.ts";
-import { applyResourceDelta, canApplyResourceDelta, type ResourceDelta } from "./resources.ts";
+import { applyResourceDelta, type ResourceDelta } from "./resources.ts";
 import { RESOURCES } from "../content/resources.ts";
 
 
