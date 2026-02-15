@@ -4,7 +4,7 @@ import { addBuilding } from "../../game/actions.ts";
 import { computed } from "@preact/signals";
 
 export default function BuildingsPanel() {
-  console.log("Rendering BuildingsPanel");
+  // console.log("Rendering BuildingsPanel");
   const buildingEntries = computed(() => stateSignal.value.buildingTimers);
 
   return (

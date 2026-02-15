@@ -5,7 +5,7 @@ import { computed } from "@preact/signals";
 import type { ResourceId } from "../../content/resources.ts";
 
 export default function ResourcePanel() {
-  console.log("Rendering ResourcePanel");
+  // console.log("Rendering ResourcePanel");
 
   const resourceAmount = (resourceId: ResourceId) => computed(() => stateSignal.value.resources[resourceId]?.amount || 0);
   const resourceCapacity = (resourceId: ResourceId) => computed(() => stateSignal.value.resources[resourceId]?.capacity || 0);
