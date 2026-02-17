@@ -1,4 +1,3 @@
-import { statusSignal } from "../../main.tsx";
 
 export default function TopBar() {
   console.log("Rendering TopBar");

@@ -64,5 +64,5 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     current_building_timers[buildingId as BuildingId] = timers;
   }
 
-  return { ...gameState, gameTime: gameState.gameTime + deltaTime, resources: current_resources, buildingTimers: current_building_timers };
+  return { ...gameState, resources: current_resources, buildingTimers: current_building_timers };
 }

@@ -14,10 +14,10 @@ const initial = createInitialGameState(RESOURCES);
 
 export const stateSignal = signal<GameState>(loadedState || initial);
 
-console.log("Initial game state:", stateSignal.value);
+console.debug("Initial game state:", stateSignal.value);
 
-let lastTime = 0;
-const frameDuration = 250; // 1000ms / 4 fps
+// TODO We could make the "FPS" configurable
+const frameDuration = 0.250; // 1s / 4 fps
 
 // If an old loop exists (from previous hot reload), kill it.
 declare global { var animationFrameCallbackId: number | undefined; }
@@ -26,18 +26,20 @@ if (globalThis.animationFrameCallbackId != null) {
   cancelAnimationFrame(globalThis.animationFrameCallbackId);
 }
 
-function gameLoop(currentTime: number) {
-  if (currentTime - lastTime < frameDuration) {
-    // console.debug("Skipping frame. Time since last frame (ms):", currentTime - lastTime);
+function gameLoop(frameTime: number) {
+  // Ignore frameTime, and use the actual current time.
+  const currentTime = Date.now() / 1000;
+  const deltaTime = (currentTime - stateSignal.value.gameTime);
+  
+  if (deltaTime < frameDuration) {
+    // console.debug("Skipping frame. Time since last frame (s):", deltaTime);
     globalThis.animationFrameCallbackId = requestAnimationFrame(gameLoop);
     return;
   }
 
-  const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
-  lastTime = currentTime;
-
   if (deltaTime > 0) { // TODO Handle large delta times (e.g., when tab is inactive)
     const newState = stepSimulation(deltaTime, stateSignal.value, RESOURCES, BUILDINGS);
+    newState.gameTime = currentTime;
     stateSignal.value = newState;
     saveGameState(newState);
   }

@@ -16,7 +16,7 @@ export type GameState = {
 
 // TODO should we have all resources/buildings in the state, or only those that have been unlocked/built?
 export function createInitialGameState(resources: Record<ResourceId, Resource>): GameState {
-  console.log("Creating initial game state");
+  console.debug("Creating initial game state");
 
   const resourceStates: Partial<Record<ResourceId, ResourceState>> = {};
   // for (const [id, resource] of Object.entries(resources)) {
@@ -57,6 +57,7 @@ export function loadGameState(): GameState | null {
     if (!savedState) {
       return null;
     }
+    console.debug("Loading saved game state:", savedState);
     const decoded = atob(savedState);
     const parsed: any = JSON.parse(decoded);
 
