@@ -19,10 +19,17 @@ console.log("Initial game state:", stateSignal.value);
 let lastTime = 0;
 const frameDuration = 250; // 1000ms / 4 fps
 
+// If an old loop exists (from previous hot reload), kill it.
+declare global { var animationFrameCallbackId: number | undefined; }
+if (globalThis.animationFrameCallbackId != null) {
+  console.debug("Canceling previous animation frame callback with id", globalThis.animationFrameCallbackId);
+  cancelAnimationFrame(globalThis.animationFrameCallbackId);
+}
+
 function gameLoop(currentTime: number) {
   if (currentTime - lastTime < frameDuration) {
     // console.debug("Skipping frame. Time since last frame (ms):", currentTime - lastTime);
-    requestAnimationFrame(gameLoop);
+    globalThis.animationFrameCallbackId = requestAnimationFrame(gameLoop);
     return;
   }
 
@@ -35,9 +42,9 @@ function gameLoop(currentTime: number) {
     saveGameState(newState);
   }
 
-  requestAnimationFrame(gameLoop);
+  globalThis.animationFrameCallbackId = requestAnimationFrame(gameLoop);
 }
-requestAnimationFrame(gameLoop);
+globalThis.animationFrameCallbackId = requestAnimationFrame(gameLoop);
 
 // Expose state for debugging
 (window as any).gameState = stateSignal;
