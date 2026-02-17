@@ -17,6 +17,9 @@ export default function BuildingsPanel() {
           <button style={{ marginTop: 4 }} onClick={() => addBuilding(building.id)}>
             Build {building.name}
           </button>
+          <p style={{ fontSize: "0.6em", marginTop: 4 }}>
+            { (buildingEntries.value[building.id] || []).map((timer) => timer.toFixed(1)).join(", ") }
+          </p>
         </div>
       ))}
     </div>
