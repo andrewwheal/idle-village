@@ -37,7 +37,7 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
         const runnableCycles = Math.floor(timers[i] / building.cycleSeconds);
         if (runnableCycles < 1) continue;
 
-        const maxCycles = maxCyclesRunnable(runnableCycles, gameState, building, resources);
+        const maxCycles = maxCyclesRunnable(runnableCycles, current_resources, building, resources);
         if (maxCycles < 1) continue;
 
         const delta = cyclesToDelta(maxCycles, building);
