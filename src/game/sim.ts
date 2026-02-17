@@ -13,34 +13,52 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   let current_resources: GameState["resources"] = { ...gameState.resources };
   const current_building_timers: GameState["buildingTimers"] = { ...gameState.buildingTimers };
 
-  // TODO How could we handle a building processed early not having enough resources to consume which are later produced by another building?
-  // TODO We could do multiple passes until we have processed all buildings or we can't process any more buildings. Maybe one pass to increment timers, then repeated passes to process buildings until no timers are ready or we can't apply any more cycles, then a final pass to "reset" timers to their max so we don't have infinite timers to apply any time resources are used.
   for (const [buildingId, timers] of Object.entries(current_building_timers)) {
     // Skip if no buildings of this type have been built (`!count` seems superfluous, but TS wants it)
-    if (!timers || timers.length <= 0) {
-      // console.debug("Skipping building:", buildingId, "count:", count);
-      continue;
-    }
-
-    const building = buildings[buildingId as BuildingId];
+    if (!timers || timers.length <= 0) continue;
 
     for (let i = 0; i < timers.length; i++) {
       timers[i] += deltaTime;
-      // If a timer should complete every 5 seconds and the delta is 10 seconds, should we:
-      // - run the building twice (or more) to catch up
-      // - run the building once then other buildings which might produce resources it consumes, then run it again to catch up
-      // - run the building once and carry over extra time to the next tick
-      const runnableCycles = Math.floor(timers[i] / building.cycleSeconds);
-      if (runnableCycles < 1) continue;
+    }
+    current_building_timers[buildingId as BuildingId] = timers;
+  }
 
-      const maxCycles = maxCyclesRunnable(runnableCycles, gameState, building, resources);
-      if (maxCycles < 1) continue;
+  // Process buildings in a loop in case later buildings produce resources consumed by others or consume resources at cap
+  let anyProcessed = true;
+  while (anyProcessed) {
+    anyProcessed = false;
+    for (const [buildingId, timers] of Object.entries(current_building_timers)) {
+      if (!timers || timers.length <= 0) continue;
 
-      const delta = cyclesToDelta(maxCycles, building);
-      if (! canApplyResourceDelta(delta, current_resources)) continue;
+      const building = buildings[buildingId as BuildingId];
 
-      current_resources = applyResourceDelta(delta, current_resources, resources);
-      timers[i] -= maxCycles * building.cycleSeconds;
+      for (let i = 0; i < timers.length; i++) {
+        // TODO If there is some capacity left but not enough for a full cycle, do we want to allow the space to be filled even though it's technically not a full cycle? We currently leave "space" that the player may expect to be filled.
+        const runnableCycles = Math.floor(timers[i] / building.cycleSeconds);
+        if (runnableCycles < 1) continue;
+
+        const maxCycles = maxCyclesRunnable(runnableCycles, gameState, building, resources);
+        if (maxCycles < 1) continue;
+
+        const delta = cyclesToDelta(maxCycles, building);
+        if (! canApplyResourceDelta(delta, current_resources)) continue;
+
+        current_resources = applyResourceDelta(delta, current_resources, resources);
+        timers[i] -= maxCycles * building.cycleSeconds;
+        anyProcessed = true;
+      }
+
+      current_building_timers[buildingId as BuildingId] = timers;
+    }
+  }
+
+  // Cap timers at their cycle time so we don't have infinitely growing timers which would cause space-time anomalies
+  for (const [buildingId, timers] of Object.entries(current_building_timers)) {
+    // Skip if no buildings of this type have been built (`!count` seems superfluous, but TS wants it)
+    if (!timers || timers.length <= 0) continue;
+
+    for (let i = 0; i < timers.length; i++) {
+      timers[i] = Math.min(timers[i], buildings[buildingId].cycleSeconds);
     }
 
     current_building_timers[buildingId as BuildingId] = timers;
