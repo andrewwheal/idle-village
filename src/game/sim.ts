@@ -5,8 +5,13 @@ import { cyclesToDelta, maxCyclesRunnable } from "./buildings";
 import { applyResourceDelta, canApplyResourceDelta } from "./resources";
 
 
-// TODO Should this be manipulating the gameState in place, or returning a new one?
+// TODO Ensure that there is no mutation of the input gameState or its nested objects, we want to treat it as immutable and return a new updated state object.
+// TODO If two buildings produce or consume the same resource are the order they are processed important? Perhaps we need to process buildings on a first come first basis, but that would require sorting individual timers across all building types.
 export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>, resources: Record<ResourceId, Resource>, buildings: Record<BuildingId, Building>): GameState {
+  if (deltaTime > 5) {
+    // Probably slept?
+    console.warn(`deltaTime is ${deltaTime}s`);
+  }
   // if (deltaTime <= 0) return gameState;
 
   // TODO resource states need to also be deep copied if we want to avoid mutating the input state
@@ -24,6 +29,9 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   }
 
   // Process buildings in a loop in case later buildings produce resources consumed by others or consume resources at cap
+  // TODO Possibly limit the number of loops we do if it becomes a performance issue, for now we monitor number of loops used to process buildings
+  let processLoops = 0;
+  let processedCycles = 0;
   let anyProcessed = true;
   while (anyProcessed) {
     anyProcessed = false;
@@ -46,10 +54,16 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
         current_resources = applyResourceDelta(delta, current_resources, resources);
         timers[i] -= maxCycles * building.cycleSeconds;
         anyProcessed = true;
+        processedCycles += maxCycles;
       }
 
       current_building_timers[buildingId as BuildingId] = timers;
     }
+    anyProcessed && processLoops++;
+  }
+
+  if (processLoops > 2) {
+    console.warn(`Processed ${processLoops} loops in one step`);
   }
 
   // Cap timers at their cycle time so we don't have infinitely growing timers which would cause space-time anomalies
