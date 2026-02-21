@@ -12,20 +12,21 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     // Probably slept?
     console.warn(`deltaTime is ${deltaTime}s`);
   }
-  // if (deltaTime <= 0) return gameState;
 
-  // TODO resource states need to also be deep copied if we want to avoid mutating the input state
+  // Following copy-on-write, we don't need to deep copy here, we can rely on that happening later if/when resources are updated.
   let current_resources: GameState["resources"] = { ...gameState.resources };
-  const current_building_timers: GameState["buildingTimers"] = { ...gameState.buildingTimers };
+  
+  // Deep copy building timers while incrementing them
+  let current_building_timers: GameState["buildingTimers"] = {};
+  for (const [buildingId, timers] of Object.entries(gameState.buildingTimers)) {
+    // Skip if no buildings of this type have been built, usually there wouldn't be an entry in the buildingTimers for a building that hasn't been built, but we might have un-built a building.
+    if (!timers?.length) continue;
 
-  for (const [buildingId, timers] of Object.entries(current_building_timers)) {
-    // Skip if no buildings of this type have been built (`!count` seems superfluous, but TS wants it)
-    if (!timers || timers.length <= 0) continue;
+    current_building_timers[buildingId] = [];
 
     for (let i = 0; i < timers.length; i++) {
-      timers[i] += deltaTime;
+      current_building_timers[buildingId][i] = timers[i] + deltaTime;
     }
-    current_building_timers[buildingId as BuildingId] = timers;
   }
 
   // Process buildings in a loop in case later buildings produce resources consumed by others or consume resources at cap
