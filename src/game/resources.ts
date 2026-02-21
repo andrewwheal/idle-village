@@ -1,4 +1,4 @@
-import type { ResourceId, RESOURCES } from "../content/resources";
+import type { ResourceId, RESOURCE_DEFINITIONS } from "../content/resources";
 import type { GameState } from "./state";
 
 
@@ -22,7 +22,7 @@ export function canApplyResourceDelta(delta: ResourceDelta, resourcesState: Game
 
 // This is the only place that should modify the resources state.
 // All changes to resources should go through this function, which will ensure that amounts are clamped to capacity and never go negative.
-export function applyResourceDelta(delta: ResourceDelta, resourcesState: GameState["resources"], resourcesDef: typeof RESOURCES): GameState["resources"] {
+export function applyResourceDelta(delta: ResourceDelta, resourcesState: GameState["resources"], resourcesDef: typeof RESOURCE_DEFINITIONS): GameState["resources"] {
     const newState = { ...resourcesState };
     for (const [resourceId, amount] of Object.entries(delta)) {
         if (!amount) continue;

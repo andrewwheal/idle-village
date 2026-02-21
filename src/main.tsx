@@ -4,13 +4,13 @@ import App from "./ui/app.tsx";
 
 import { createInitialGameState, loadGameState, saveGameState, type GameState } from "./game/state";
 import { stepSimulation } from "./game/sim";
-import { RESOURCES } from "./content/resources.ts";
-import { BUILDINGS } from "./content/buildings.ts";
+import { RESOURCE_DEFINITIONS } from "./content/resources.ts";
+import { BUILDING_DEFINITIONS } from "./content/buildings.ts";
 
 console.log("Starting game...");
 
 const loadedState = loadGameState();
-const initial = createInitialGameState(RESOURCES);
+const initial = createInitialGameState(RESOURCE_DEFINITIONS);
 
 export const stateSignal = signal<GameState>(loadedState || initial);
 
@@ -38,7 +38,7 @@ function gameLoop(frameTime: number) {
   }
 
   if (deltaTime > 0) { // TODO Handle large delta times (e.g., when tab is inactive)
-    const newState = stepSimulation(deltaTime, stateSignal.value, RESOURCES, BUILDINGS);
+    const newState = stepSimulation(deltaTime, stateSignal.value, RESOURCE_DEFINITIONS, BUILDING_DEFINITIONS);
     newState.gameTime = currentTime;
     stateSignal.value = newState;
     saveGameState(newState);

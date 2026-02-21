@@ -1,8 +1,10 @@
 import type { ResourceId } from "./resources";
 
-export type BuildingId = keyof typeof BUILDINGS;
+export type BuildingId = keyof typeof BUILDING_DEFINITIONS;
 
-export type Building = {
+export type BuildingDefinitionMap = Record<BuildingId, BuildingDefinition>;
+
+export type BuildingDefinition = {
     id: BuildingId;
     name: string;
     cost: Partial<Record<ResourceId, number>>;
@@ -11,7 +13,7 @@ export type Building = {
     produces: Partial<Record<ResourceId, number>>;
 }
 
-export const BUILDINGS: Record<string, Building> = {
+export const BUILDING_DEFINITIONS: Record<string, BuildingDefinition> = {
     "woodcutter": {
         id: "woodcutter",
         name: "Woodcutter's Hut",

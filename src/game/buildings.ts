@@ -1,18 +1,18 @@
-import type { Building } from "../content/buildings";
-import type { ResourceMap } from "../content/resources";
+import type { BuildingDefinition } from "../content/buildings";
+import type { ResourceDefinitionMap } from "../content/resources";
 import type { ResourceDelta } from "./resources";
 import type { GameState } from "./state";
 
 
-export function cyclesToDelta(cycles: number, buildingDef: Building): ResourceDelta {
+export function cyclesToDelta(cycles: number, buildingDefinition: BuildingDefinition): ResourceDelta {
     const delta: ResourceDelta = {};
-    if (buildingDef.consumes) {
-        for (const [resourceId, amount] of Object.entries(buildingDef.consumes)) {
+    if (buildingDefinition.consumes) {
+        for (const [resourceId, amount] of Object.entries(buildingDefinition.consumes)) {
             if (!amount) continue;
             delta[resourceId] = (delta[resourceId] || 0) - (amount * cycles);
         }
     }
-    for (const [resourceId, amount] of Object.entries(buildingDef.produces)) {
+    for (const [resourceId, amount] of Object.entries(buildingDefinition.produces)) {
         if (!amount) continue;
         delta[resourceId] = (delta[resourceId] || 0) + (amount * cycles);
     }
@@ -20,24 +20,24 @@ export function cyclesToDelta(cycles: number, buildingDef: Building): ResourceDe
 }
 
 
-export function maxCyclesRunnable(ready: number, stateResources: Readonly<GameState["resources"]>, buildingDef: Building, resourceDefs: ResourceMap): number {
+export function maxCyclesRunnable(ready: number, resourceState: Readonly<GameState["resources"]>, buildingDefinition: BuildingDefinition, resourceDefinitions: ResourceDefinitionMap): number {
     // We floor to ensure we are only counting fully completed cycles.
     let max = Math.floor(ready);
 
-    if (buildingDef.consumes) {
-        for (const [resourceId, amountPerCycle] of Object.entries(buildingDef.consumes)) {
+    if (buildingDefinition.consumes) {
+        for (const [resourceId, amountPerCycle] of Object.entries(buildingDefinition.consumes)) {
             if (!amountPerCycle) continue;
-            const currentAmount = stateResources[resourceId]?.amount ?? 0;
+            const currentAmount = resourceState[resourceId]?.amount ?? 0;
             const possibleCycles = Math.floor(currentAmount / amountPerCycle);
             max = Math.min(max, possibleCycles);
             if (max <= 0) return 0;
         }
     }
 
-    for (const [resourceId, amountPerCycle] of Object.entries(buildingDef.produces)) {
+    for (const [resourceId, amountPerCycle] of Object.entries(buildingDefinition.produces)) {
         if (!amountPerCycle) continue;
-        const currentAmount = stateResources[resourceId]?.amount ?? 0;
-        const capacityLimit = stateResources[resourceId]?.capacity ?? resourceDefs[resourceId].baseCapacity;
+        const currentAmount = resourceState[resourceId]?.amount ?? 0;
+        const capacityLimit = resourceState[resourceId]?.capacity ?? resourceDefinitions[resourceId].baseCapacity;
         const availableCapacity = capacityLimit - currentAmount;
         const possibleCycles = Math.floor(availableCapacity / amountPerCycle);
         max = Math.min(max, possibleCycles);

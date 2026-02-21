@@ -1,6 +1,8 @@
-export type ResourceId = keyof typeof RESOURCES;
+export type ResourceId = keyof typeof RESOURCE_DEFINITIONS;
 
-export type Resource = {
+export type ResourceDefinitionMap = Record<ResourceId, ResourceDefinition>;
+
+export type ResourceDefinition = {
     id: ResourceId;
     name: string;
     baseCapacity: number;
@@ -8,7 +10,7 @@ export type Resource = {
 
 export const initialResources: ResourceId[] = ["wood", "food"];
 
-export const RESOURCES: Record<string, Resource> = {
+export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     "wood": {
         id: "wood",
         name: "Wood",

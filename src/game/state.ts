@@ -1,5 +1,5 @@
-import { RESOURCES, type ResourceId, type Resource } from "../content/resources";
-import { BUILDINGS, type BuildingId } from "../content/buildings";
+import { RESOURCE_DEFINITIONS, type ResourceId, type ResourceDefinitionMap } from "../content/resources";
+import { BUILDING_DEFINITIONS, type BuildingId } from "../content/buildings";
 import { initialResources } from "../content/resources";
 
 export type ResourceState = {
@@ -15,7 +15,7 @@ export type GameState = {
 }
 
 // TODO should we have all resources/buildings in the state, or only those that have been unlocked/built?
-export function createInitialGameState(resources: Record<ResourceId, Resource>): GameState {
+export function createInitialGameState(resources: ResourceDefinitionMap): GameState {
   console.debug("Creating initial game state");
 
   const resourceStates: Partial<Record<ResourceId, ResourceState>> = {};
@@ -72,7 +72,7 @@ export function loadGameState(): GameState | null {
         parsed.buildingTimers[buildingId] = [];
         for (let i = 0; i < (count as number); i++) {
           parsed.buildingTimers[buildingId].push(
-            Math.floor(Math.random() * 1000) / 1000 * BUILDINGS[buildingId as BuildingId].cycleSeconds
+            Math.floor(Math.random() * 1000) / 1000 * BUILDING_DEFINITIONS[buildingId as BuildingId].cycleSeconds
           );
         }
       }
@@ -83,7 +83,7 @@ export function loadGameState(): GameState | null {
     if (parsed.version == 2) {
       for (const [resourceId, resourceState] of Object.entries(parsed.resources)) {
         if (!resourceState) continue;
-        (resourceState as any).capacity = RESOURCES[resourceId as ResourceId].baseCapacity;
+        (resourceState as any).capacity = RESOURCE_DEFINITIONS[resourceId as ResourceId].baseCapacity;
       }
       parsed.version = 2.1;
     }
