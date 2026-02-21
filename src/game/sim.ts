@@ -73,7 +73,11 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
     if (!timers || timers.length <= 0) continue;
 
     for (let i = 0; i < timers.length; i++) {
-      timers[i] = Math.min(timers[i], buildings[buildingId].cycleSeconds);
+      if (timers[i] > buildings[buildingId].cycleSeconds * 2) {
+        // TODO Is there a better way to cap timers. We want to stop them at cycleSeconds so a building doesn't run multiple times when freed up, but if we just cap at the cycleSeconds then they all get synced up which goes against the point of having individual instance timers.
+        const instance_phase = timers[i] % buildings[buildingId].cycleSeconds
+        timers[i] = instance_phase + buildings[buildingId].cycleSeconds;
+      }
     }
 
     current_building_timers[buildingId as BuildingId] = timers;
