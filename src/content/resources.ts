@@ -26,4 +26,24 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
         name: "Planks",
         baseCapacity: 1000,
     },
+    "stone": {
+        id: "stone",
+        name: "Stone",
+        baseCapacity: 1000,
+    },
+    "clay": {
+        id: "clay",
+        name: "Clay",
+        baseCapacity: 1000,
+    },
+    "pottery": {
+        id: "pottery",
+        name: "Pottery",
+        baseCapacity: 100,
+    },
+    "bricks": {
+        id: "bricks",
+        name: "Bricks",
+        baseCapacity: 500,
+    },
 }

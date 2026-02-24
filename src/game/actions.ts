@@ -12,6 +12,7 @@ export function doAction(id: ActionId) {
 
     // Add the resource gain
     // TODO handle capacity limits
+    // TODO action.produces is basically just a resource delta, we should probably just store it as that to avoid having to convert it here
     const delta: ResourceDelta = {};
     for (const [resId, amount] of Object.entries(action.produces)) {
         if (!amount) continue;
