@@ -26,7 +26,7 @@ if (globalThis.animationFrameCallbackId != null) {
   cancelAnimationFrame(globalThis.animationFrameCallbackId);
 }
 
-function gameLoop(frameTime: number) {
+function gameLoop() {
   // Ignore frameTime, and use the actual current time.
   const currentTime = Date.now() / 1000;
   const deltaTime = (currentTime - stateSignal.value.gameTime);
