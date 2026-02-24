@@ -7,7 +7,7 @@ import { stepSimulation } from "./game/sim";
 import { RESOURCE_DEFINITIONS } from "./content/resources.ts";
 import { BUILDING_DEFINITIONS } from "./content/buildings.ts";
 
-console.log("Starting game...");
+console.log(`Starting game... (mode: ${import.meta.env.MODE})`);
 
 const loadedState = loadGameState();
 const initial = createInitialGameState(RESOURCE_DEFINITIONS);
@@ -48,7 +48,9 @@ function gameLoop(frameTime: number) {
 }
 globalThis.animationFrameCallbackId = requestAnimationFrame(gameLoop);
 
-// Expose state for debugging
-(window as any).gameState = stateSignal;
+if (import.meta.env.DEV) {
+  // Expose state for debugging
+  (window as any).gameState = stateSignal;
+}
 
 render(<App />, document.getElementById("app")!);

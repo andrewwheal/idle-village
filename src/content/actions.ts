@@ -22,5 +22,17 @@ export const ACTIONS: Record<string, Action> = {
         produces: {
             "food": 1,
         },
-    },
+    }
+}
+
+if (import.meta.env.DEV) {
+    ACTIONS["throwaway"] = {
+        id: "throwaway",
+        name: "Throw Away",
+        produces: {
+            "wood": -50,
+            "food": -50,
+            "planks": -50,
+        },
+    }
 }
