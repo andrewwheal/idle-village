@@ -17,15 +17,16 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   let resourceState: GameState["resources"] = { ...gameState.resources };
   
   // Deep copy building timers while incrementing them
-  let buildingTimerState: GameState["buildingTimers"] = {};
-  for (const [buildingId, timers] of Object.entries(gameState.buildingTimers)) {
+  let buildingState: GameState["buildings"] = {};
+  for (const [buildingId, buildingInstances] of Object.entries(gameState.buildings)) {
     // Skip if no buildings of this type have been built, usually there wouldn't be an entry in the buildingTimers for a building that hasn't been built, but we might have un-built a building.
-    if (!timers?.length) continue;
+    if (!buildingInstances?.length) continue;
 
-    buildingTimerState[buildingId] = [];
+    buildingState[buildingId] = [];
 
-    for (let i = 0; i < timers.length; i++) {
-      buildingTimerState[buildingId][i] = timers[i] + deltaTime;
+    for (let i = 0; i < buildingInstances.length; i++) {
+      const updatedTimers = buildingInstances[i].map(workerTimer => workerTimer + deltaTime);
+      buildingState[buildingId].push(updatedTimers);
     }
   }
 
@@ -36,29 +37,31 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   let anyProcessed = true;
   while (anyProcessed) {
     anyProcessed = false;
-    for (const [buildingId, timers] of Object.entries(buildingTimerState)) {
-      if (!timers || timers.length <= 0) continue;
+    for (const [buildingId, buildingInstances] of Object.entries(buildingState)) {
+      if (!buildingInstances || buildingInstances.length <= 0) continue;
 
       const buildingDefinition = buildingDefinitions[buildingId];
 
-      for (let i = 0; i < timers.length; i++) {
-        // TODO If there is some capacity left but not enough for a full cycle, do we want to allow the space to be filled even though it's technically not a full cycle? We currently leave "space" that the player may expect to be filled.
-        const runnableCycles = Math.floor(timers[i] / buildingDefinition.cycleSeconds);
-        if (runnableCycles < 1) continue;
+      for (let i = 0; i < buildingInstances.length; i++) {
+        for (let j = 0; j < buildingInstances[i].length; j++) {
+          // TODO If there is some capacity left but not enough for a full cycle, do we want to allow the space to be filled even though it's technically not a full cycle? We currently leave "space" that the player may expect to be filled.
+          const runnableCycles = Math.floor(buildingInstances[i][j] / buildingDefinition.cycleSeconds);
+          if (runnableCycles < 1) continue;
 
-        const maxCycles = maxCyclesRunnable(runnableCycles, resourceState, buildingDefinition, resourceDefinitions);
-        if (maxCycles < 1) continue;
+          const maxCycles = maxCyclesRunnable(runnableCycles, resourceState, buildingDefinition, resourceDefinitions);
+          if (maxCycles < 1) continue;
 
-        const delta = cyclesToDelta(maxCycles, buildingDefinition);
-        if (! canApplyResourceDelta(delta, resourceState)) continue;
+          const delta = cyclesToDelta(maxCycles, buildingDefinition);
+          if (! canApplyResourceDelta(delta, resourceState)) continue;
 
-        resourceState = applyResourceDelta(delta, resourceState, resourceDefinitions);
-        timers[i] -= maxCycles * buildingDefinition.cycleSeconds;
-        anyProcessed = true;
-        processedCycles += maxCycles;
+          resourceState = applyResourceDelta(delta, resourceState, resourceDefinitions);
+          buildingInstances[i][j] -= maxCycles * buildingDefinition.cycleSeconds;
+          anyProcessed = true;
+          processedCycles += maxCycles;
+        }
       }
 
-      buildingTimerState[buildingId] = timers;
+      buildingState[buildingId] = buildingInstances;
     }
     anyProcessed && processLoops++;
   }
@@ -68,20 +71,22 @@ export function stepSimulation(deltaTime: number, gameState: Readonly<GameState>
   }
 
   // Cap timers at their cycle time so we don't have infinitely growing timers which would cause space-time anomalies
-  for (const [buildingId, timers] of Object.entries(buildingTimerState)) {
+  for (const [buildingId, buildingInstances] of Object.entries(buildingState)) {
     // Skip if no buildings of this type have been built (`!count` seems superfluous, but TS wants it)
-    if (!timers || timers.length <= 0) continue;
+    if (!buildingInstances || buildingInstances.length <= 0) continue;
 
-    for (let i = 0; i < timers.length; i++) {
-      if (timers[i] > buildingDefinitions[buildingId].cycleSeconds * 2) {
-        // TODO Is there a better way to cap timers. We want to stop them at cycleSeconds so a building doesn't run multiple times when freed up, but if we just cap at the cycleSeconds then they all get synced up which goes against the point of having individual instance timers.
-        const instance_phase = timers[i] % buildingDefinitions[buildingId].cycleSeconds
-        timers[i] = instance_phase + buildingDefinitions[buildingId].cycleSeconds;
+    for (let i = 0; i < buildingInstances.length; i++) {
+      for (let j = 0; j < buildingInstances[i].length; j++) {
+        if (buildingInstances[i][j] > buildingDefinitions[buildingId].cycleSeconds * 2) {
+          // TODO Is there a better way to cap timers. We want to stop them at cycleSeconds so a building doesn't run multiple times when freed up, but if we just cap at the cycleSeconds then they all get synced up which goes against the point of having individual instance timers.
+          const instance_phase = buildingInstances[i][j] % buildingDefinitions[buildingId].cycleSeconds
+          buildingInstances[i][j] = instance_phase + buildingDefinitions[buildingId].cycleSeconds;
+        }
       }
     }
 
-    buildingTimerState[buildingId] = timers;
+    buildingState[buildingId] = buildingInstances;
   }
 
-  return { ...gameState, resources: resourceState, buildingTimers: buildingTimerState };
+  return { ...gameState, resources: resourceState, buildings: buildingState };
 }

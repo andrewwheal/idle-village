@@ -33,30 +33,33 @@ export function doAction(id: ActionId) {
 export function addBuilding(id: string) {
     const state = stateSignal.value;
 
-    // Check we have enough resources to build
-    const building = BUILDING_DEFINITIONS[id];
-    for (const [resId, amount] of Object.entries(building.cost)) {
-        if (!amount || !state.resources[resId]) continue;
+    // TODO should/can this be converted to using resource deltas?
 
-        if (state.resources[resId].amount < amount) {
+    // Check we have enough resources to build
+    const buildingDefinition = BUILDING_DEFINITIONS[id];
+    for (const [resourceId, amount] of Object.entries(buildingDefinition.cost)) {
+        if (!amount || !state.resources[resourceId]) continue;
+
+        if (state.resources[resourceId].amount < amount) {
+            // TODO we need some kind of feedback to the player that they don't have enough resources
             return; // Not enough resources
         }
     }
 
     // Deduct resources
-    for (const [resId, amount] of Object.entries(building.cost)) {
+    for (const [resId, amount] of Object.entries(buildingDefinition.cost)) {
         if (!amount || !state.resources[resId]) continue;
 
         state.resources[resId].amount -= amount;
     }
 
     // Add the building
-    state.buildingTimers[id] = (state.buildingTimers[id] ?? []);
-    state.buildingTimers[id].push(0);
+    state.buildings[id] = (state.buildings[id] ?? []);
+    state.buildings[id].push([]); // Add a new building instance with an empty array of worker timers (no timers assigned yet)
 
     // Update the signal to trigger reactivity
     stateSignal.value = {
         ...state,
-        buildingTimers: { ...state.buildingTimers },
+        buildings: { ...state.buildings },
     };
 }

@@ -13,6 +13,7 @@ export type BuildingDefinition = {
     produces: Partial<Record<ResourceId, number>>;
 }
 
+// TODO maybe buildings could have different tiers? For example a tier 1 woodcutter is cheap but you're only allowed one, then a tier 2 woodcutter is more expensive but produces more wood and you can build multiple. This introduces a realistic cap to buildings, allows for cheap starter buildings but also makes them usable later on.
 export const BUILDING_DEFINITIONS: Record<string, BuildingDefinition> = {
     "woodcutter": {
         id: "woodcutter",
