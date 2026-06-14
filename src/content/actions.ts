@@ -1,4 +1,5 @@
 import type { ResourceId } from "./resources";
+import {RESOURCE_DEFINITIONS} from "./resources";
 
 export type ActionId = keyof typeof ACTIONS;
 
@@ -26,13 +27,14 @@ export const ACTIONS: Record<string, Action> = {
 }
 
 if (import.meta.env.DEV) {
+    const throwaway_amounts: Record<ResourceId, number> = {};
+    for (const resourceId of Object.keys(RESOURCE_DEFINITIONS)) {
+        throwaway_amounts[resourceId as ResourceId] = RESOURCE_DEFINITIONS[resourceId as ResourceId].baseCapacity * -0.2;
+    }
+
     ACTIONS["throwaway"] = {
         id: "throwaway",
         name: "Throw Away",
-        produces: {
-            "wood": -50,
-            "food": -50,
-            "planks": -50,
-        },
+        produces: throwaway_amounts,
     }
 }
