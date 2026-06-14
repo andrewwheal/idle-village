@@ -26,6 +26,11 @@ export type GameState = {
   workers: WorkerState;
 }
 
+export function hasValidBuildingInstance(state: Readonly<GameState>, buildingId: BuildingId, instanceId: number): boolean {
+  const buildingInstances = state.buildings[buildingId];
+  return !!(buildingInstances && buildingInstances[instanceId]);
+}
+
 // TODO should we have all resources/buildings in the state, or only those that have been unlocked/built?
 export function createInitialGameState(resources: ResourceDefinitionMap): GameState {
   console.debug("Creating initial game state");
@@ -44,9 +49,9 @@ export function createInitialGameState(resources: ResourceDefinitionMap): GameSt
     resources: resourceStates,
     buildings: {},
     workers: {
-      count: 0,
+      count: 3,
       assigned: 0,
-      population_capacity: 0,
+      population_capacity: 3,
     },
   } as GameState;
 }
@@ -118,9 +123,9 @@ export function loadGameState(): GameState | null {
       delete parsed.buildingTimers;
 
       parsed.workers = {
-        count: workerCount,
-        assigned: workerCount,
-        population_capacity: workerCount,
+        count: Math.max(workerCount, 3),
+        assigned: workerCount,  // TODO investigate the feasability of deriving assigned from buildings instead of storing a manually tracked value
+        population_capacity: Math.max(workerCount, 3),
       };
 
       parsed.version = 3;
