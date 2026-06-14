@@ -47,6 +47,7 @@ export default function TopBar() {
         </div>
         <div style={{ float: "right", marginLeft: "auto" }}>
           <button type="button" style={{ marginRight: "0.5rem" }} onClick={() => setShowHelp(true)}>❔</button>
+          <button type="button" onClick={() => { if (confirm("Are you sure you want to reset the game?")) { stateSignal.value = createInitialGameState(RESOURCE_DEFINITIONS); } }}>Reset Game</button>
         </div>
       </div>
       {showHelp ? <HelpPopup onClose={() => setShowHelp(false)} /> : null}
